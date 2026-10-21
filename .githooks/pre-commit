@@ -1,0 +1,4 @@
+#!/bin/sh
+# Same gate as CI, before the commit lands.
+command -v node >/dev/null 2>&1 || exit 0
+node scripts/validate.mjs

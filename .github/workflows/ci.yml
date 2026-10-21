@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate skills and manifests
+        run: node scripts/validate.mjs
+
+      - name: Test the SEO auditor
+        run: node --test tests/
+
+      - name: Check the repo installs with the skills CLI
+        run: npx -y skills add . --list

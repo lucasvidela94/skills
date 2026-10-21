@@ -1,0 +1,15 @@
+{
+  "name": "lucasvidela94",
+  "description": "Agent skills by Lucas Videla",
+  "owner": {
+    "name": "Lucas Videla",
+    "url": "https://github.com/lucasvidela94"
+  },
+  "plugins": [
+    {
+      "name": "skills",
+      "source": "./",
+      "description": "Portable agent skills: on-page SEO and more."
+    }
+  ]
+}
