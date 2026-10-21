@@ -1,6 +1,6 @@
 ---
 name: seo-on-page
-description: Implements or audits on-page SEO for a site (per-page title and meta description, canonicals, OG images, semantic HTML, custom 404, robots.txt, llms.txt, and sitemap). Use when adding pages, when a page won't index or shares badly, or when preparing a site to launch.
+description: Implements or audits on-page SEO for a site (per-page title and meta description, canonicals, OG images, semantic HTML, custom 404, robots.txt, optional llms.txt, and sitemap). Use when adding pages, when a page won't index or shares badly, or when preparing a site to launch.
 license: MIT
 ---
 
@@ -81,11 +81,9 @@ A 404 is an exit, not a dead end.
 
 **Done when** `curl -sI https://site.com/does-not-exist` returns `HTTP/2 404` and the page offers at least the home page and the main sections.
 
-## Step 6 — robots.txt and llms.txt
+## Step 6 — robots.txt (and an optional llms.txt)
 
-Both live at the domain root and are served as `text/plain`.
-
-`robots.txt` is for search engine crawlers:
+`robots.txt` lives at the domain root, served as `text/plain`, and names the sitemap by absolute URL:
 
 ```
 User-agent: *
@@ -98,7 +96,9 @@ Sitemap: https://site.com/sitemap.xml
 
 Block private paths and internal search results only. Assets (CSS, JS, images) stay reachable, since the crawler cannot render the page without them. Every `Disallow` that is not private gets justified against a row from the Step 1 inventory.
 
-`llms.txt` follows the [llmstxt.org](https://llmstxt.org) convention: a model-readable summary of the site in Markdown, linking to the pages that matter. It complements robots.txt and the sitemap rather than replacing them.
+AI crawlers read the same file under their own names (`OAI-SearchBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`). Allow them where the site wants citations, and treat a block as a deliberate decision worth stating: a `User-agent: *` rule that locks out AI search also removes the site from those answers.
+
+`llms.txt` is optional. It follows the [llmstxt.org](https://llmstxt.org) convention: a Markdown summary for coding tools and agents reading documentation. Google Search ignores it, and a study of 137,000 domains found 97% of published files receive zero requests, so it earns a place when agent-read docs are part of the product; it moves nothing in search.
 
 ```md
 # Site name
@@ -108,12 +108,9 @@ Block private paths and internal search results only. Assets (CSS, JS, images) s
 ## Pages
 - [Product](https://site.com/product): what it solves, in one line.
 - [Docs](https://site.com/docs): how to start.
-
-## Optional
-- [Blog](https://site.com/blog)
 ```
 
-**Done when** both files return 200 at the root, robots.txt names the sitemap by absolute URL, and every `Disallow` maps to a private row in the inventory.
+**Done when** robots.txt returns 200 at the root, names the sitemap by absolute URL, and every `Disallow` maps to a private row in the inventory.
 
 ## Step 7 — Sitemap
 

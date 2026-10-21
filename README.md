@@ -47,7 +47,7 @@ cp -R skills/seo-on-page ~/.config/opencode/skills/  # OpenCode
 
 | Skill | What it does | Ships |
 | --- | --- | --- |
-| [seo-on-page](skills/seo-on-page/SKILL.md) | On-page SEO pass over a site: per-page title and meta description, canonicals, OG images, semantic HTML, a real 404, robots.txt, llms.txt, and the sitemap. | [`scripts/audit.mjs`](skills/seo-on-page/scripts/audit.mjs) |
+| [seo-on-page](skills/seo-on-page/SKILL.md) | On-page SEO pass over a site: per-page title and meta description, canonicals, OG images, semantic HTML, a real 404, robots.txt, optional llms.txt, and the sitemap. | [`scripts/audit.mjs`](skills/seo-on-page/scripts/audit.mjs) |
 
 ### seo-on-page
 
@@ -96,6 +96,11 @@ skills/<skill-name>/
 scripts/validate.mjs
 tests/
 ```
+
+## Research
+
+[research/geo-aeo-llmo.md](research/geo-aeo-llmo.md) — what the evidence says about
+GEO/AEO/LLMO, with sources, and why `llms.txt` is optional in `seo-on-page`.
 
 ## License
 
