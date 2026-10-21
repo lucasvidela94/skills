@@ -70,7 +70,7 @@ pages.
 
 ## The gate
 
-Every push runs `node scripts/validate.mjs`, `node --test tests/`, and a real
+Every push runs `node scripts/validate.mjs`, `node --test tests/*.test.mjs`, and a real
 install of the repo with the skills CLI. The validator refuses a skill that:
 
 - has no `SKILL.md`, or a frontmatter `name` that differs from its folder

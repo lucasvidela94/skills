@@ -7,7 +7,7 @@ One skill per folder under `skills/`, kebab-case, with a `SKILL.md` that has
 
 ```bash
 node scripts/validate.mjs   # structure, frontmatter, links, slop markers, manifests
-node --test tests/          # auditor contract tests
+node --test tests/*.test.mjs          # auditor contract tests
 ```
 
 Both run in CI on every push.
