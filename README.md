@@ -48,6 +48,7 @@ cp -R skills/seo-on-page ~/.config/opencode/skills/  # OpenCode
 | Skill | What it does | Ships |
 | --- | --- | --- |
 | [seo-on-page](skills/seo-on-page/SKILL.md) | On-page SEO pass over a site: per-page title and meta description, canonicals, OG images, semantic HTML, a real 404, robots.txt, optional llms.txt, and the sitemap. | [`scripts/audit.mjs`](skills/seo-on-page/scripts/audit.mjs) |
+| [geo-readiness](skills/geo-readiness/SKILL.md) | Audit for generative engines (GEO/AEO/LLMO): AI crawler access, server-rendered content, extractable evidence, entity corroboration, and measurement. Labels every recommendation with its evidence level. | [`scripts/geo-audit.mjs`](skills/geo-readiness/scripts/geo-audit.mjs) |
 
 ### seo-on-page
 
@@ -67,6 +68,27 @@ It verifies status, title and description length, self-referencing canonical,
 `og:url` matching the canonical, `og:image` reachable as an image, `og:image:alt`,
 `noindex`, `h1` count, and repeated titles, descriptions or canonicals across
 pages.
+
+### geo-readiness
+
+The follow-up question: given that the site is indexable, can a generative
+engine cite it? It assumes the SEO pass and delegates there instead of repeating
+canonicals and sitemaps.
+
+The auditor reports robot access per crawler (`OAI-SearchBot`, `bingbot`,
+`PerplexityBot`, `Claude-SearchBot`), server-HTML word count, tables,
+blockquotes, outbound sources, numbers, `sameAs` entries, and Bing
+`noarchive`/`nocache` directives:
+
+```bash
+node skills/geo-readiness/scripts/geo-audit.mjs https://example.com/
+node skills/geo-readiness/scripts/geo-audit.mjs https://example.com/sitemap.xml --json
+```
+
+Counts are a floor, not a score: whether a page is citable is a human call, and
+the report has to carry an evidence label (strong, moderate, weak) next to every
+recommendation. The skill opens by sending you to `seo-on-page` when its
+auditor does not pass.
 
 ## The gate
 
