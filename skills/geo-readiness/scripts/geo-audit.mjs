@@ -131,12 +131,19 @@ function analyse(html) {
   };
 }
 
-async function urlsFrom(input) {
+const MAX_SITEMAP_DEPTH = 3;
+
+// A sitemap index lists child sitemaps, not pages: follow it instead of auditing the XML.
+async function urlsFrom(input, depth = 0) {
   if (!/\.xml(\?|$)/i.test(input)) return [input];
   const res = await fetch(input, { headers: { 'user-agent': UA } });
   if (!res.ok) throw new Error(`sitemap ${input} -> ${res.status}`);
   const xml = await res.text();
-  return [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => decode(m[1]));
+  const locs = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => decode(m[1]));
+  if (!/<sitemapindex[\s>]/i.test(xml)) return locs;
+  if (depth >= MAX_SITEMAP_DEPTH) throw new Error(`sitemap ${input} nests more than ${MAX_SITEMAP_DEPTH} levels`);
+  const children = await Promise.all(locs.map((loc) => urlsFrom(loc, depth + 1)));
+  return [...new Set(children.flat())];
 }
 
 const cache = new Map();

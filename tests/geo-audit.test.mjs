@@ -58,6 +58,10 @@ before(async () => {
     type: 'application/xml',
     data: `<?xml version="1.0"?><urlset><url><loc>${base}/</loc></url><url><loc>${base}/thin</loc></url></urlset>`,
   });
+  routes.set('/sitemap-index.xml', {
+    type: 'application/xml',
+    data: `<?xml version="1.0"?><sitemapindex><sitemap><loc>${base}/sitemap.xml</loc></sitemap></sitemapindex>`,
+  });
 });
 
 after(() => server.close());
@@ -89,6 +93,12 @@ test('sitemap input audits every loc', async () => {
   const { stdout } = await run(process.execPath, [CLI, `${base}/sitemap.xml`]);
   assert.match(stdout, /2 page\(s\)/);
   assert.match(stdout, new RegExp(`${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/thin`));
+});
+
+test('a sitemap index is followed to its pages', async () => {
+  const { stdout } = await run(process.execPath, [CLI, `${base}/sitemap-index.xml`]);
+  assert.match(stdout, /2 page\(s\)/);
+  assert.doesNotMatch(stdout, /sitemap\.xml\s+\[/);
 });
 
 test('json output is machine readable', async () => {

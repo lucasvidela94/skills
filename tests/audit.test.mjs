@@ -53,6 +53,10 @@ before(async () => {
     type: 'application/xml',
     data: `<?xml version="1.0"?><urlset><url><loc>${base}/</loc></url><url><loc>${base}/docs</loc></url></urlset>`,
   });
+  routes.set('/sitemap-index.xml', {
+    type: 'application/xml',
+    data: `<?xml version="1.0"?><sitemapindex><sitemap><loc>${base}/sitemap.xml</loc></sitemap><sitemap><loc>${base}/sitemap.xml</loc></sitemap></sitemapindex>`,
+  });
   routes.set('/sitemap-dup.xml', {
     type: 'application/xml',
     data: `<?xml version="1.0"?><urlset><url><loc>${base}/</loc></url><url><loc>${base}/dup</loc></url></urlset>`,
@@ -70,6 +74,12 @@ test('a well-formed page passes', async () => {
 test('a sitemap of clean pages passes', async () => {
   const { stdout } = await run(process.execPath, [CLI, `${base}/sitemap.xml`]);
   assert.match(stdout, /2\/2 routes OK/);
+});
+
+test('a sitemap index is followed to its pages, each audited once', async () => {
+  const { stdout } = await run(process.execPath, [CLI, `${base}/sitemap-index.xml`]);
+  assert.match(stdout, /2\/2 routes OK/);
+  assert.doesNotMatch(stdout, /sitemap\.xml\s+\[/);
 });
 
 test('a broken page fails with the specific reasons', async () => {
