@@ -134,7 +134,7 @@ node scripts/audit.mjs https://site.com/
 node scripts/audit.mjs https://site.com/sitemap.xml
 ```
 
-It checks status, title, description, canonical, `og:url`, `og:image`, `noindex`, and `h1` count, and names the reason behind every failure. For what the script does not cover, run `curl -sI` against the 404 and robots.txt, and open one URL in an OG preview validator.
+It follows a sitemap index into its child sitemaps. It checks status, title, description, canonical, `og:url`, `og:image`, `noindex`, and `h1` count, and names the reason behind every failure. To audit a local build or preview whose canonicals point at production, add `--ignore-host`: the canonical is then compared by path only. For what the script does not cover, run `curl -sI` against the 404 and robots.txt, and open one URL in an OG preview validator.
 
 **Done when** every public inventory row passes all checks, or each remaining deviation is recorded with its reason.
 

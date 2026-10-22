@@ -62,7 +62,11 @@ failure, so it drops into CI as-is:
 ```bash
 node skills/seo-on-page/scripts/audit.mjs https://example.com/
 node skills/seo-on-page/scripts/audit.mjs https://example.com/sitemap.xml
+node skills/seo-on-page/scripts/audit.mjs http://localhost:4321/ --ignore-host
 ```
+
+A sitemap index is followed into its child sitemaps. `--ignore-host` compares the
+canonical by path only, for a local build whose canonicals point at production.
 
 It verifies status, title and description length, self-referencing canonical,
 `og:url` matching the canonical, `og:image` reachable as an image, `og:image:alt`,

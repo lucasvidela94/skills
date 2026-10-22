@@ -47,6 +47,14 @@ before(async () => {
   routes.set('/', ok('/'));
   routes.set('/docs', ok('/docs', 'Docs for content-heavy marketing sites built in Astro · Acme', DESC.replace('Build', 'Ship')));
   routes.set('/dup', ok('/dup'));
+  routes.set('/moved', {
+    type: 'text/html',
+    data: page('https://example.com', '/elsewhere', TITLE, DESC).replace('https://example.com/og.png', `${base}/og.png`),
+  });
+  routes.set('/prod', {
+    type: 'text/html',
+    data: page('https://example.com', '/prod', TITLE, DESC).replace('https://example.com/og.png', `${base}/og.png`),
+  });
   routes.set('/bad', { type: 'text/html', data: '<title>Short</title><link rel="canonical" href="/x"><h1>a</h1><h1>b</h1>' });
   routes.set('/og.png', { type: 'image/png', data: 'png' });
   routes.set('/sitemap.xml', {
@@ -80,6 +88,22 @@ test('a sitemap index is followed to its pages, each audited once', async () => 
   const { stdout } = await run(process.execPath, [CLI, `${base}/sitemap-index.xml`]);
   assert.match(stdout, /2\/2 routes OK/);
   assert.doesNotMatch(stdout, /sitemap\.xml\s+\[/);
+});
+
+test('a canonical on another host fails unless --ignore-host compares the path', async () => {
+  await assert.rejects(run(process.execPath, [CLI, `${base}/prod`]), (error) => {
+    assert.match(error.stdout, /canonical points elsewhere/);
+    return true;
+  });
+  const { stdout } = await run(process.execPath, [CLI, `${base}/prod`, '--ignore-host']);
+  assert.match(stdout, /1\/1 routes OK/);
+});
+
+test('--ignore-host still fails a canonical on another path', async () => {
+  await assert.rejects(run(process.execPath, [CLI, `${base}/moved`, '--ignore-host']), (error) => {
+    assert.match(error.stdout, /canonical points elsewhere/);
+    return true;
+  });
 });
 
 test('a broken page fails with the specific reasons', async () => {

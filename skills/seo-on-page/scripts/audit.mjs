@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 // Audits a site's head tags and indexable URLs.
-// Usage: node audit.mjs <url> [url...]   |   node audit.mjs <sitemap.xml>
+// Usage: node audit.mjs <url> [url...]   |   node audit.mjs <sitemap.xml> [--ignore-host]
+// --ignore-host compares the canonical by path only, to audit a local build or preview
+// whose canonicals point at the production host.
 // Exits 1 when any route fails.
 
 const inputs = process.argv.slice(2).filter((a) => !a.startsWith('-'));
+const ignoreHost = process.argv.includes('--ignore-host');
 if (inputs.length === 0) {
-  console.error('Usage: node audit.mjs <url|sitemap.xml> [...]');
+  console.error('Usage: node audit.mjs <url|sitemap.xml> [...] [--ignore-host]');
   process.exit(2);
 }
 
@@ -110,7 +113,8 @@ function audit(url, d, state) {
   if (!d.canonical) fails.push('missing canonical');
   else if (!canon) fails.push(`canonical is relative (${d.canonical})`);
   else {
-    if (self && canon !== self) fails.push(`canonical points elsewhere (${canon})`);
+    const samePage = ignoreHost && self ? new URL(canon).pathname === new URL(self).pathname : canon === self;
+    if (self && !samePage) fails.push(`canonical points elsewhere (${canon})`);
     unique('canonical', state.canonicals, canon);
   }
 
