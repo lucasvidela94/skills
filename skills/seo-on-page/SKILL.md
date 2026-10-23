@@ -1,6 +1,6 @@
 ---
 name: seo-on-page
-description: Implements or audits on-page SEO for a site (per-page title and meta description, canonicals, OG images, semantic HTML, custom 404, robots.txt, optional llms.txt, and sitemap). Use when adding pages, when a page won't index or shares badly, or when preparing a site to launch.
+description: On-page SEO for a site — titles, meta descriptions, canonicals, OG images, 404, robots.txt, llms.txt, sitemap. Use when adding pages, when a page won't index or shares badly, or when preparing a site to launch.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 A page competes as one URL. Everything else — sitemap, robots, OG, 404 — exists so crawlers and link previews find that URL and see it correctly. **Canonical** is the spine: each page declares which URL owns it, and every other piece of the site either respects that choice or contradicts it. When two pieces disagree (a sitemap listing a `noindex` URL, OG tags pointing at another host, a 404 answering `200`), the search engine picks a winner, and it usually picks wrong.
 
-The work is the same for a new site and for an audit: Step 1 produces the inventory that orders everything else.
+The work is the same for a new site and for an audit: Step 1 produces the inventory that orders everything else. Paths under `scripts/` are relative to this skill's folder, not to the project.
 
 ## Step 1 — Route inventory
 
@@ -96,7 +96,7 @@ Sitemap: https://site.com/sitemap.xml
 
 Block private paths and internal search results only. Assets (CSS, JS, images) stay reachable, since the crawler cannot render the page without them. Every `Disallow` that is not private gets justified against a row from the Step 1 inventory.
 
-AI crawlers read the same file under their own names (`OAI-SearchBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`). Allow them where the site wants citations, and treat a block as a deliberate decision worth stating: a `User-agent: *` rule that locks out AI search also removes the site from those answers.
+AI crawlers read the same file, and a `User-agent: *` rule that locks out AI search also removes the site from those answers. Which bot names control search and which only control training is the `geo-readiness` skill's Step 2.
 
 `llms.txt` is optional. It follows the [llmstxt.org](https://llmstxt.org) convention: a Markdown summary for coding tools and agents reading documentation. Google Search ignores it, and a study of 137,000 domains found 97% of published files receive zero requests, so it earns a place when agent-read docs are part of the product; it moves nothing in search.
 
@@ -134,7 +134,7 @@ node scripts/audit.mjs https://site.com/
 node scripts/audit.mjs https://site.com/sitemap.xml
 ```
 
-It follows a sitemap index into its child sitemaps. It checks status, title, description, canonical, `og:url`, `og:image`, `noindex`, and `h1` count, and names the reason behind every failure. To audit a local build or preview whose canonicals point at production, add `--ignore-host`: the canonical is then compared by path only. For what the script does not cover, run `curl -sI` against the 404 and robots.txt, and open one URL in an OG preview validator.
+It follows a sitemap index into its child sitemaps, checks the Step 2 head values plus status, `noindex` and `h1` count, and names the reason behind every failure. To audit a local build or preview whose canonicals point at production, add `--ignore-host`: the canonical is then compared by path only. For what the script does not cover, run `curl -sI` against the 404 and robots.txt, and open one URL in an OG preview validator.
 
 **Done when** every public inventory row passes all checks, or each remaining deviation is recorded with its reason.
 
@@ -143,7 +143,6 @@ It follows a sitemap index into its child sitemaps. It checks status, title, des
 Gates, not opinions. The work is not done until these pass:
 
 - `node scripts/audit.mjs <url|sitemap.xml>` exits 0 across every public URL.
-- Each page carries a description written for that page. A build-time default is a fallback for routes nobody meant to publish, and the fix is writing the copy.
-- The auditor fails on a repeated title, description, or canonical. Repetition is the fingerprint of generated filler, so the duplicate gets rewritten rather than accepted.
-- Every `loc` in the sitemap returns 200. A failing URL is fixed or removed from the sitemap in the same change.
+- A repeated title, description, or canonical gets rewritten. Repetition is the fingerprint of generated filler.
+- A sitemap URL that fails is fixed or removed from the sitemap in the same change.
 - A page that is not ready to be indexed stays out of the sitemap and out of the navigation, carrying `noindex` until the content exists.
