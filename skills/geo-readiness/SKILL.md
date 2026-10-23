@@ -1,6 +1,6 @@
 ---
 name: geo-readiness
-description: Audits whether generative engines can find, cite and reuse a site's content (GEO/AEO/LLMO) — AI crawler access, server-rendered content, extractable evidence, entity corroboration, and measurement. Use when a client asks to appear in ChatGPT, AI Overviews, Copilot or Perplexity, when auditing AI visibility, or when deciding what to change after an SEO pass.
+description: GEO/AEO/LLMO audit — whether generative engines (ChatGPT, AI Overviews, Copilot, Perplexity) can retrieve and cite a site. Use when a client asks to appear in AI answers, when auditing AI visibility or AI crawler access, or when deciding what to change after an SEO pass.
 license: MIT
 ---
 
@@ -9,11 +9,15 @@ license: MIT
 A generative answer cites a page it already retrieved. That sentence is the
 skill: **retrieval is the gate, citation is the prize.** The audit works on both,
 in that order, and labels every recommendation with the strength of the evidence
-behind it.
+behind it. Paths under `scripts/` are relative to this skill's folder, not to
+the project.
 
-Step 0 is not optional. The `seo-on-page` skill covers indexability; if its
-auditor does not pass, fix that first, because nothing downstream can be cited.
-This skill delegates there instead of repeating canonicals, sitemaps and 404s.
+## Step 0 — Indexable first
+
+Indexability is the `seo-on-page` skill: canonicals, sitemaps and 404s live
+there. A page that cannot be indexed cannot be cited, so its auditor runs first.
+
+**Done when** the `seo-on-page` auditor exits 0 on the pages in scope.
 
 ## Step 1 — Scope the question
 
@@ -48,7 +52,8 @@ Three traps:
 - `NOARCHIVE` on Bing excludes the content from Copilot answers.
 - `NOCACHE` reduces Copilot citations to URL, title and snippet.
 
-A block is a business decision, not a bug. State it in the report either way.
+A block is a business decision: report it with its tradeoff, as a decision
+rather than a defect.
 
 **Done when** every bot has a verdict (allowed, blocked, or never seen) backed by
 a robots.txt rule or a log line.
@@ -103,8 +108,8 @@ Wire the baseline first, otherwise the report is an opinion:
 
 ## Step 7 — Report with evidence levels
 
-Every recommendation carries one label, taken from the 2023–2026 survey of 45
-studies:
+Every recommendation carries one label, taken from the survey of 45 studies
+(Martinez, July 2026):
 
 | Label | What earns it |
 | --- | --- |
@@ -112,14 +117,17 @@ studies:
 | Moderate | Extractable evidence (figures, definitions, comparisons), recency, document structure |
 | Weak | Fluency, authoritative tone, formatting recipes |
 
-**Done when** every item carries a label and a source, and the report states what
-cannot be measured yet.
+**Done when** every item carries a label and a source, the auditor's output is
+attached unabridged, and the report states what cannot be measured yet.
 
-## Skip these
+## Out of scope
+
+The effort goes to Steps 2–6. These have no evidence behind them, and a request
+for one gets that answer:
 
 - `llms.txt` as a visibility lever. Google ignores it, and 97% of published files
-  receive zero requests (Ahrefs, 137,000 domains). Keep it when agents read the
-  site's docs, and present it as housekeeping.
+  receive zero requests (Ahrefs, 137,000 domains). Report it as informational
+  housekeeping for agent-read docs, never scored.
 - Chunking content for machines.
 - Rewriting copy in an "AI-friendly" style.
 - Paid or inauthentic mentions.
@@ -128,11 +136,7 @@ cannot be measured yet.
 
 ## Guardrails
 
-- Every recommendation carries a strong/moderate/weak label. Unlabeled advice is
-  the failure this skill exists to prevent.
-- The auditor's output is attached to the report, not summarized away.
 - The deliverable is readiness plus measurement. Placement is not promised,
   because no technique in the literature shows a stable, cross-platform causal
   effect on organic discovery.
-- `llms.txt` is reported as informational and never scored.
-- A blocked bot is reported as a decision with its tradeoff, not as a defect.
+- An unlabeled recommendation is the failure this skill exists to prevent.
