@@ -102,7 +102,10 @@ install of the repo with the skills CLI. The validator refuses a skill that:
 - has no `SKILL.md`, or a frontmatter `name` that differs from its folder
 - has a description shorter than 80 characters or without a `Use when` trigger
 - has zero or several `H1`s, or runs past 500 lines
-- links to a file that does not exist
+- links to a file that does not exist, from `SKILL.md` or from any reference
+- ships a file no pointer from `SKILL.md` reaches, directly or through a reference
+- repeats a sentence of 60+ characters, within a file or across its files
+- names a skill or slash command that is not in this repo without linking its source on the same line
 - carries slop markers (`TODO`, `TBD`, `FIXME`, `lorem ipsum`, placeholder text)
 - ships a `.mjs` that does not parse
 - is missing from this README

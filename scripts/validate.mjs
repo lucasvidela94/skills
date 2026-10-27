@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Mechanical gate for this repo. Runs on every push and on pre-commit.
-// Usage: node scripts/validate.mjs
+// Usage: node scripts/validate.mjs [repo-root]
 
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const ROOT = path.resolve(import.meta.dirname, '..');
+const ROOT = path.resolve(process.argv[2] ?? path.join(import.meta.dirname, '..'));
 const errors = [];
 const fail = (msg) => errors.push(msg);
 const rel = (p) => path.relative(ROOT, p);
@@ -15,6 +15,8 @@ const NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const MAX_LINES = 500;
 const MIN_DESC = 80;
 const MAX_DESC = 1024;
+// Shorter sentences repeat by accident ("Run the suite."); longer ones repeat a meaning.
+const MIN_DUP = 60;
 const SLOP = [
   /\bTODO\b/,
   /\bTBD\b/,
@@ -45,7 +47,120 @@ function parseFrontmatter(md, file) {
   return { data, body: md.slice(match[0].length) };
 }
 
-async function checkSkill(dir) {
+// Fenced examples are content, not structure: keep them out of the checks.
+const stripFences = (md) => md.replace(/```[\s\S]*?```/g, '');
+
+async function listFiles(dir) {
+  const out = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...(await listFiles(full)));
+    else out.push(full);
+  }
+  return out;
+}
+
+// Links resolve against the file that holds them; backticked `references/…`
+// paths against the skill folder; a bare `name.md` against either. A command
+// in a fenced block (`node scripts/audit.mjs`) reaches its script too.
+async function pointers(file, raw, dir) {
+  const prose = stripFences(raw);
+  const found = [];
+  for (const m of raw.matchAll(/(?:^|[\s`(])((?:scripts|references|assets)\/[\w./-]*\w)/gm)) {
+    const target = path.join(dir, m[1]);
+    if (await exists(target)) found.push(target);
+  }
+  for (const m of prose.matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
+    const href = m[1];
+    if (/^(https?:|mailto:|#)/.test(href)) continue;
+    const target = path.join(path.dirname(file), href.split('#')[0]);
+    if (await exists(target)) found.push(target);
+    else fail(`${rel(file)}: broken link ${href}`);
+  }
+  for (const m of prose.matchAll(/`((?:scripts|references|assets)\/[^`\s]+)`/g)) {
+    const target = path.join(dir, m[1]);
+    if (await exists(target)) found.push(target);
+    else fail(`${rel(file)}: missing file ${m[1]}`);
+  }
+  for (const m of prose.matchAll(/`([\w.-]+\.(?:md|mjs|js|json))`/g)) {
+    for (const base of [path.dirname(file), dir]) {
+      const target = path.join(base, m[1]);
+      if (await exists(target)) {
+        found.push(target);
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+const sentences = (prose) =>
+  prose
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*`]/g, '')
+    .split(/\n|(?<=[.!?])\s+/)
+    .map((s) =>
+      s
+        .replace(/^[\s>#|-]*(\d+\.\s*)?/, '')
+        .replace(/[\s.!?:;|]+$/, '')
+        .replace(/\s+/g, ' ')
+        .toLowerCase(),
+    )
+    .filter((s) => s.length >= MIN_DUP);
+
+// A skill named in prose must ship here or carry a link to where it lives.
+function checkSkillRefs(file, prose, skills) {
+  for (const line of prose.split(/\r?\n/)) {
+    const names = [
+      ...[...line.matchAll(/`([a-z0-9]+(?:-[a-z0-9]+)*)` skills?\b/g)].map((m) => m[1]),
+      // `/admin` in a table of routes is a URL path; a command is run or named as one.
+      ...[...line.matchAll(/(?:\b(?:run|use|invoke)s?\s+|\bthe\s+\w*\s*)`\/([a-z0-9]+(?:-[a-z0-9]+)*)`/gi)].map((m) => m[1]),
+      ...[...line.matchAll(/`\/([a-z0-9]+(?:-[a-z0-9]+)*)`\s+(?:command|skill)/g)].map((m) => m[1]),
+    ];
+    for (const name of names) {
+      if (skills.includes(name) || /https?:\/\//.test(line)) continue;
+      fail(`${rel(file)}: "${name}" is not in this repo; link its source on the same line`);
+    }
+  }
+}
+
+async function checkTree(dir, skills) {
+  const files = await listFiles(dir);
+  const md = new Map();
+  for (const file of files.filter((f) => f.endsWith('.md'))) {
+    md.set(file, await readFile(file, 'utf8'));
+  }
+
+  // Every file must be reachable from SKILL.md, or no run of the skill ever reads it.
+  const reached = new Set([path.join(dir, 'SKILL.md')]);
+  const queue = [...reached];
+  while (queue.length) {
+    const file = queue.shift();
+    if (!md.has(file)) continue;
+    for (const target of await pointers(file, md.get(file), dir)) {
+      if (reached.has(target)) continue;
+      reached.add(target);
+      queue.push(target);
+    }
+  }
+  for (const file of files) {
+    if (!reached.has(file)) fail(`${rel(file)}: orphan, no pointer from SKILL.md reaches it`);
+  }
+
+  // One meaning, one place.
+  const seen = new Map();
+  for (const [file, raw] of md) {
+    const prose = stripFences(raw);
+    checkSkillRefs(file, prose, skills);
+    for (const sentence of sentences(prose)) {
+      const first = seen.get(sentence);
+      if (first) fail(`duplicated sentence in ${rel(first)} and ${rel(file)}: "${sentence.slice(0, 80)}"`);
+      else seen.set(sentence, file);
+    }
+  }
+}
+
+async function checkSkill(dir, skills) {
   const name = path.basename(dir);
   const file = path.join(dir, 'SKILL.md');
   let md;
@@ -69,8 +184,7 @@ async function checkSkill(dir) {
   const lines = md.split(/\r?\n/).length;
   if (lines > MAX_LINES) fail(`${rel(file)}: ${lines} lines, cap is ${MAX_LINES}`);
 
-  // Fenced examples are content, not structure: keep them out of the checks.
-  const prose = body.replace(/```[\s\S]*?```/g, '');
+  const prose = stripFences(body);
 
   const h1 = prose.match(/^# .+$/gm) || [];
   if (h1.length !== 1) fail(`${rel(file)}: expected exactly one H1, found ${h1.length}`);
@@ -79,17 +193,7 @@ async function checkSkill(dir) {
     if (pattern.test(prose)) fail(`${rel(file)}: slop marker ${pattern}`);
   }
 
-  // Relative links and backticked paths must resolve, or they rot.
-  for (const m of prose.matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
-    const href = m[1];
-    if (/^(https?:|mailto:|#)/.test(href)) continue;
-    const target = path.join(dir, href.split('#')[0]);
-    if (!(await exists(target))) fail(`${rel(file)}: broken link ${href}`);
-  }
-  for (const m of prose.matchAll(/`((?:scripts|references|assets)\/[^`\s]+)`/g)) {
-    const target = path.join(dir, m[1]);
-    if (!(await exists(target))) fail(`${rel(file)}: missing file ${m[1]}`);
-  }
+  await checkTree(dir, skills);
 }
 
 const exists = async (p) => {
@@ -172,7 +276,7 @@ async function main() {
   if (new Set(skills).size !== skills.length) fail('skills/: duplicate skill folders');
 
   for (const skill of skills) {
-    await checkSkill(path.join(skillsDir, skill));
+    await checkSkill(path.join(skillsDir, skill), skills);
   }
 
   await checkScripts(path.join(ROOT, 'scripts'));

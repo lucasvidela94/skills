@@ -21,7 +21,7 @@ jobs:
       - name: Validate skills and manifests
         run: node scripts/validate.mjs
 
-      - name: Test the SEO auditor
+      - name: Test the auditors, the validator, and the evidence
         run: node --test tests/*.test.mjs
 
       - name: Check the repo installs with the skills CLI
