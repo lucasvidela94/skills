@@ -49,6 +49,7 @@ cp -R skills/seo-on-page ~/.config/opencode/skills/  # OpenCode
 | --- | --- | --- |
 | [seo-on-page](skills/seo-on-page/SKILL.md) | On-page SEO pass over a site: per-page title and meta description, canonicals, OG images, semantic HTML, a real 404, robots.txt, optional llms.txt, and the sitemap. | [`scripts/audit.mjs`](skills/seo-on-page/scripts/audit.mjs) |
 | [geo-readiness](skills/geo-readiness/SKILL.md) | Audit for generative engines (GEO/AEO/LLMO): AI crawler access, server-rendered content, extractable evidence, entity corroboration, and measurement. Labels every recommendation with its evidence level. | [`scripts/geo-audit.mjs`](skills/geo-readiness/scripts/geo-audit.mjs) |
+| [useful-tests](skills/useful-tests/SKILL.md) | Catch tautological tests and write ones that can fail: requirement-derived oracles, tests at the module interface, mutation and property-based testing. Every rule cites its source and evidence level. | 32 sources in [`references/evidence.md`](skills/useful-tests/references/evidence.md) |
 
 ### seo-on-page
 
@@ -94,6 +95,23 @@ the report has to carry an evidence label (strong, moderate, weak) next to every
 recommendation. The skill opens by sending you to `seo-on-page` when its
 auditor does not pass.
 
+### useful-tests
+
+A test is worth keeping only if it can fail when the code is wrong. The six
+steps go from naming the requirement to proving the test dies on a mutant,
+with a checkable exit per step. Tautological tests — the ones that restate the
+implementation — are the target, not coverage.
+
+Changing a repo so useful tests are the easy path is Matt Pocock's recipe: pull
+code into deep modules, force tests to the module interface with
+dependency-cruiser, tell automated review to push tests up, and validate with
+mutation testing instead of green.
+
+The 32 sources behind every rule live in
+[`references/evidence.md`](skills/useful-tests/references/evidence.md), labeled
+measured, practical experience, or opinion; `tests/useful-tests.test.mjs` keeps
+the numbering, the levels, the citations, and that count in agreement.
+
 ## The gate
 
 Every push runs `node scripts/validate.mjs`, `node --test tests/*.test.mjs`, and a real
@@ -121,15 +139,21 @@ locally with `node scripts/validate.mjs`, or once via
 skills/<skill-name>/
   SKILL.md          # frontmatter + instructions
   scripts/          # optional, referenced from SKILL.md
+  references/       # optional, reached by a pointer from SKILL.md
 .claude-plugin/     # Claude Code plugin + marketplace manifests
+research/           # raw material behind a skill; never installed
 scripts/validate.mjs
 tests/
 ```
 
 ## Research
 
-[research/geo-aeo-llmo.md](research/geo-aeo-llmo.md) — what the evidence says about
-GEO/AEO/LLMO, with sources, and why `llms.txt` is optional in `seo-on-page`.
+Raw material stays out of `skills/`, so an install copies only what a run reads.
+
+- [research/geo-aeo-llmo.md](research/geo-aeo-llmo.md) — what the evidence says about
+  GEO/AEO/LLMO, with sources, and why `llms.txt` is optional in `seo-on-page`.
+- [research/useful-tests/](research/useful-tests/README.md) — verbatim copies (tweets,
+  READMEs, skill files, paper abstracts) of the sources behind `useful-tests`, in Spanish.
 
 ## License
 
