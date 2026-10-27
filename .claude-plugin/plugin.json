@@ -1,6 +1,6 @@
 {
   "name": "skills",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Portable agent skills by Lucas Videla",
   "author": {
     "name": "Lucas Videla",
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/lucasvidela94/skills",
   "repository": "https://github.com/lucasvidela94/skills",
   "license": "MIT",
-  "keywords": ["agent-skills", "claude-code", "codex", "opencode", "seo"]
+  "keywords": ["agent-skills", "claude-code", "codex", "opencode", "seo", "geo", "testing", "mutation-testing"]
 }
