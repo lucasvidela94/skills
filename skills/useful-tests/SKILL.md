@@ -8,7 +8,7 @@ license: MIT
 
 A **useful test** can go red when the code is wrong. A **tautological test** restates the implementation and passes by construction. Coverage, count, and green are noise until the test has gone red on a bug.
 
-Test quality follows the codebase's design: when a module hides a lot of behaviour behind a small interface, the test has only the interface to reach for, and the tautology has nowhere to hide. Changing the repo so that is true is a branch of its own, below.
+Tautologies have two sources. **The same context**: an agent that wrote the code and then its test encodes one guess twice, and the build goes green because the two agree. **The design**: a module with exposed internals invites tests of the internals. The steps below cut the first; changing the repo so a small interface is all a test can reach is a branch of its own, below.
 
 ## Writing a test
 
@@ -32,7 +32,9 @@ If there is no entry point to call, a deep module is missing: fix the design, no
 
 The expected number, string, or object is written from the requirement: a known literal, a worked example, an independent oracle. A value recomputed the way the code computes it agrees with the code by construction.
 
-**Done when** you can point to the source of the expected value outside the code.
+Write the test in a fresh context: a subagent or a new session that receives the requirement and the interface, never the implementation. An agent that just wrote the code carries it in context whether or not it opens the file. When no fresh context is available, the report says the test and the code share an author.
+
+**Done when** you can point to the source of the expected value outside the code, and the context that wrote the test never held the implementation, or the report says it did.
 
 ### 4. Cover the edges
 
@@ -48,7 +50,7 @@ Run the mutation tool on the changed lines (Stryker on the diff, or mutagate as 
 
 ### 6. Keep, rewrite, or delete
 
-A useless test is worse than a missing one: the agent treats it as a requirement and builds around it. A test whose deletion loses nothing goes.
+A useless test is worse than a missing one: the agent treats it as a requirement and builds around it, and every run pays for it in time and tokens. A test whose deletion loses nothing goes.
 
 **Done when** every test in the change answers "what requirement does it protect?" and "what concrete mutation turns it red?".
 
@@ -62,8 +64,9 @@ A useless test is worse than a missing one: the agent treats it as a requirement
 ## Branches
 
 - **Writing or fixing a specific test** → [references/write.md](references/write.md): the TypeScript anti-patterns with their rewrites, oracles, doubles, and which test level catches a defect.
+- **A bug was reported** → [references/write.md](references/write.md#bug-first): reproduce it, pin it with a test that goes red on it, then fix.
 - **Reviewing or cleaning an existing suite** → [references/review.md](references/review.md): the audit prompts, Dijkstra's tautological-test prompt, and how to classify each test.
 - **Killing survivors or adding a gate** → [references/mutation.md](references/mutation.md): mutation score, Stryker, mutagate, waivers, costs.
 - **Property-based testing** → [references/properties.md](references/properties.md): the five-step flow, fast-check, and the model's typical failures.
 - **Changing the repo so useful tests are the easy path** → [references/how-to-use.md](references/how-to-use.md): Matt Pocock's deep-module recipe, test-first versus test-after, and the order to apply it in.
-- **What the evidence says** → [references/evidence.md](references/evidence.md): the 32 sources, their numbers, and each one's evidence level. Numbers in brackets across the references point to its rows.
+- **What the evidence says** → [references/evidence.md](references/evidence.md): the 34 sources, their numbers, and each one's evidence level. Numbers in brackets across the references point to its rows.

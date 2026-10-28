@@ -9,6 +9,16 @@ The detail behind steps 2–4 of `SKILL.md`, with the source number from `eviden
 - "If the test would still pass when every function returned nothing, throw it out." [12]
 - A test whose requirement you cannot name stays unwritten. When an honest test is impractical, say so in the report instead of writing a weak one. [14, 12]
 
+## Bug first
+
+When a bug arrives, the test comes before the fix:
+
+1. Reproduce the bug with whatever shows it: logs, a script against the running system, the user's steps.
+2. Write the test that goes red on it, at the lowest layer that still shows the failure.
+3. Fix the code until that test goes green, and keep it as the regression test.
+
+A test that went red on the real bug has already passed step 5 of `SKILL.md`: the bug was the mutant. Then search the same module for siblings of the bug. [14]
+
 ## Doubles
 
 - An in-memory double beats a mock with wiring expectations: `expect(repo.save).toHaveBeenCalledWith(...)` checks the internals, `await app.findUser("Ana")` checks the observable effect. [14]
@@ -20,10 +30,8 @@ From Durable Testing [14]:
 
 - Test at the lowest layer that can catch the defect: unit tests for new logic, integration tests for new boundaries (database, HTTP, queue), end-to-end only for critical user journeys.
 - Assert each behaviour at one layer. The same assertion at three layers triples the maintenance and adds no signal.
-- When an end-to-end test fails, reproduce the cause with a lower-level test before fixing it.
 - Quarantine a flaky test and fix it. A retry that turns it green hides the defect it found.
 - Use equivalence partitions and boundaries to pick inputs instead of enumerating them.
-- After a defect, search the same module and similar code for its siblings.
 
 The reasoning behind each rule, for when it is unclear how one applies: [testing principles](https://durableqa.xyz/durable-testing/testing-principles.md), [test pyramid](https://durableqa.xyz/durable-testing/test-pyramid.md).
 

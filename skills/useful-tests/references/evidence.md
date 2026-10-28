@@ -6,7 +6,7 @@ Evidence levels:
 - **Practical experience**: someone did it and reports how it went, without formal measurement.
 - **Opinion**: a criterion or recommendation, without data.
 
-X dates are in UTC. Links were opened on 2026-10-27, except where a row or the last section says otherwise. The raw copies (full tweets, READMEs, abstracts) are kept in the repo under `research/useful-tests/`, outside the skill.
+X dates are in UTC. Links were opened on 2026-10-27 (rows 33–34 on 2026-10-28), except where a row or the last section says otherwise. The raw copies (full tweets, READMEs, abstracts) are kept in the repo under `research/useful-tests/`, outside the skill.
 
 ## Which rule rests on what
 
@@ -18,8 +18,9 @@ Strongest first; the numbers are rows below.
 4. Filter generated tests by compile, stable pass, and added value: measured. [2]
 5. Unguided agent tests can add nothing: measured, not peer-reviewed. [15]
 6. LLM tests skew to the happy path: measured. [9]
-7. Deep modules and tests at the interface: practical experience and opinion. [16, 17, 18]
-8. A one-line "no tautological tests" rule in AGENTS.md, and test-first as a guide rather than a mandate: practical experience. [20, 21, 22]
+7. The test comes from a context that never held the implementation: opinion, built on the mechanism behind 5. [15, 33, 34]
+8. Deep modules and tests at the interface: practical experience and opinion, contested by 33 on the strength of 5. [16, 17, 18, 33]
+9. A one-line "no tautological tests" rule in AGENTS.md, and test-first as a guide rather than a mandate: practical experience. [20, 21, 22]
 
 ## Papers and studies
 
@@ -67,6 +68,13 @@ Strongest first; the numbers are rows below.
 | 30 | [Mutation testing is essential](https://x.com/cjimti/status/2021498582222934394) | Craig Johnston | 2026-02-11 | "AI loves to construct tautological tests". | Opinion |
 | 31 | [Stryker.js: 847 mutants, 73% kill rate](https://x.com/MingtaKaivo/status/2033228989511205248) | @MingtaKaivo | 2026-03-15 | In an FFT module, 27% of mutants survived. | Practical experience |
 | 32 | [Arkency talk: mutant on LLM tests](https://x.com/szymonfiedler/status/2015725372030030169) | Szymon Fiedler | 2026-01-26 | Announces a talk on using mutation testing (Mutant, in Ruby) to validate AI-written tests in legacy code. | Practical experience (announcement) |
+
+## Later articles and counterpoints
+
+| # | Source | Author | Date | Summary | Evidence |
+|---|---|---|---|---|---|
+| 33 | [The tests your agent writes for itself](https://karachiwala.dev/writing/the-tests-your-agent-writes-for-itself) | Mashhood Rastgar | 2026-10-08 | Reads the DeepSWE numbers of row 15 (111 tasks, 444 runs; success 65.3% with tests vs 66.2% without; $304 vs $278) as "the agent is marking its own homework": code and test come from one context window. Rejects "blame the codebase" because the runs were on repos like FastAPI, and says to run mutation testing "to delete, not to trust", since it cannot tell an intended change from an unintended one. | Opinion, on measured data |
+| 34 | [Unit tests were never the problem](https://www.linkedin.com/posts/andrewlombardi_a-few-weeks-ago-my-feed-filled-up-with-people-activity-7518695116312752128-QMi6) | Andrew Lombardi | 2026-10-21 | Agent tests went bad because nobody read them. Break the code on purpose, check behaviour, never let an agent change a failing test on its own, and "have a different model review the tests than the one that wrote them". | Opinion |
 
 ## Tools cited (not opened; names for reference)
 

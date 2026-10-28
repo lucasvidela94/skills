@@ -54,6 +54,7 @@ Adapted from [1, 10, 11]:
 ## Limits and noise
 
 - The mutation score can be gamed too, and an unsupervised agent drifts back to chasing the number. Review the new assertions, not just the score. [5, 6]
+- A killed mutant proves the test looks at that line, not that the test is right. When a behaviour changes on purpose, the mutation run cannot say whether the code or the test is wrong: the requirement decides. Mutation is strongest at finding tests to delete. [33]
 - Equivalent mutants create noise. There must be a justified exit, such as mutagate's human-approved waiver. [10, 11]
 - Mutation runs cost time and CI: on a small fixture, 7.24x slower than regular tests (not generalizable). [11]
 

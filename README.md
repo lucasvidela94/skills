@@ -49,7 +49,7 @@ cp -R skills/seo-on-page ~/.config/opencode/skills/  # OpenCode
 | --- | --- | --- |
 | [seo-on-page](skills/seo-on-page/SKILL.md) | On-page SEO pass over a site: per-page title and meta description, canonicals, OG images, semantic HTML, a real 404, robots.txt, optional llms.txt, and the sitemap. | [`scripts/audit.mjs`](skills/seo-on-page/scripts/audit.mjs) |
 | [geo-readiness](skills/geo-readiness/SKILL.md) | Audit for generative engines (GEO/AEO/LLMO): AI crawler access, server-rendered content, extractable evidence, entity corroboration, and measurement. Labels every recommendation with its evidence level. | [`scripts/geo-audit.mjs`](skills/geo-readiness/scripts/geo-audit.mjs) |
-| [useful-tests](skills/useful-tests/SKILL.md) | Catch tautological tests and write ones that can fail: requirement-derived oracles, tests at the module interface, mutation and property-based testing. Every rule cites its source and evidence level. | 32 sources in [`references/evidence.md`](skills/useful-tests/references/evidence.md) |
+| [useful-tests](skills/useful-tests/SKILL.md) | Catch tautological tests and write ones that can fail: requirement-derived oracles, tests at the module interface, mutation and property-based testing. Every rule cites its source and evidence level. | 34 sources in [`references/evidence.md`](skills/useful-tests/references/evidence.md) |
 
 ### seo-on-page
 
@@ -107,7 +107,7 @@ code into deep modules, force tests to the module interface with
 dependency-cruiser, tell automated review to push tests up, and validate with
 mutation testing instead of green.
 
-The 32 sources behind every rule live in
+The 34 sources behind every rule live in
 [`references/evidence.md`](skills/useful-tests/references/evidence.md), labeled
 measured, practical experience, or opinion; `tests/useful-tests.test.mjs` keeps
 the numbering, the levels, the citations, and that count in agreement.

@@ -12,6 +12,8 @@ Quotes are verbatim from the 2026 posts, with links. The three skills named belo
 
 Use it when bad tests appear: the question is not "which prompt failed?" but "which interface let this test in?". A module with many small functions and exposed internal state invites detail testing. A deep module does not.
 
+The counterpoint: the DeepSWE runs where agent tests added nothing were on well-designed repos such as FastAPI, so design alone does not explain them. [15, 33] Matt's recipe narrows what a test can reach; the fresh context of step 3 in `SKILL.md` narrows what its author knows. A repo needs both.
+
 ## 2. The four-step recipe
 
 > "1. Pull more of your code into deep modules
